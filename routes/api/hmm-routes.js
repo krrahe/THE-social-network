@@ -20,6 +20,36 @@ router
   .delete(removeHmm)
   .post(addRetort);
 
-router.route("/:userId/:hmmId/:retortId").delete(removeRetort);
+  router.route('/:userId/:hmmId/:retortId').delete(removeRetort, (req, res) => {
+    res.json({ message: 'Retort removed from hmm!' });
+  });
+
+   removeRetort = async (req, res) => {
+    try {
+      const { hmmId, retortId } = req.params;
+      const updatedHmm = await Hmm.findByIdAndUpdate(
+        hmmId,
+        { $pull: { retorts: { _id: retortId } } },
+        { new: true, runValidators: true }
+      );
+      if (!updatedHmm) {
+        return res.status(404).json({ message: 'No hmm found with this id!' });
+      }
+      res.json(updatedHmm);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json(err);
+    }
+  };
+  
+  module.exports = {
+    getAllHmms,
+    getHmmById,
+    addHmm,
+    updateHmm,
+    removeHmm,
+    addRetort,
+    
+  }
 
 module.exports = router;

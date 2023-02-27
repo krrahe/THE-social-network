@@ -1,20 +1,21 @@
 const { Schema, model } = require("mongoose");
-const Thought = require("./Thought");
+
+const Hmm = require("./Hmm");
 
 const UserSchema = new Schema(
   {
     username: {
       type: String,
       unique: true,
-      required: "username,now",
+      required: true,
       trim: true,
     },
     email: {
       type: String,
       unique: true,
-      match: [/.+@.+\..+/, ":("],
+      match: [/.+@.+\..+/, "Invalid email address"],
     },
-    thoughts: [{ type: Schema.Types.ObjectId, ref: "Thought" }],
+    hmms: [{ type: Schema.Types.ObjectId, ref: "Hmm" }],
     friends: [{ type: Schema.Types.ObjectId, ref: "User" }],
   },
   { toJSON: { virtuals: true, getters: true }, id: false }
@@ -25,10 +26,8 @@ UserSchema.virtual("friendCount").get(function () {
 });
 
 UserSchema.pre("remove", function (next) {
-  Thought.remove({ username: this.username }).exec();
+  Hmm.remove({ username: this.username }).exec();
   next();
 });
 
-const User = model("User", UserSchema);
-
-module.exports = User;
+module.exports = model("User", UserSchema);
